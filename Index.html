@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Isaiah Bennett — GIS & Cartography</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream:   #f8f4ed;
+      --parchment: #f0e9d8;
+      --ink:     #1c1f1b;
+      --charcoal:#2e3228;
+      --forest:  #3a5440;
+      --moss:    #5c7a4e;
+      --sage:    #8aab7a;
+      --slate:   #4e5f68;
+      --tan:     #c4a97a;
+      --rule:    rgba(60,55,45,0.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 16px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      background: rgba(248,244,237,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--rule);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 52px;
+    }
+
+    .nav-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+      text-decoration: none;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+    .nav-links a:hover { opacity: 1; }
+
+    /* ── HERO / INTRO ── */
+    #hero {
+      padding: 140px 52px 80px;
+      max-width: 760px;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--moss);
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.6rem, 4.5vw, 4rem);
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--ink);
+      margin-bottom: 24px;
+    }
+
+    h1 em { font-style: italic; color: var(--forest); }
+
+    .hero-bio {
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--slate);
+      line-height: 1.85;
+      max-width: 640px;
+      margin-bottom: 32px;
+    }
+
+    .hero-links {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .hero-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.66rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+      text-decoration: none;
+      border-bottom: 1px solid var(--tan);
+      padding-bottom: 2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .hero-links a:hover { color: var(--forest); border-color: var(--forest); }
+
+    /* ── SECTION ── */
+    .section-block {
+      padding: 72px 52px;
+      border-top: 1px solid var(--rule);
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--charcoal);
+      margin-bottom: 48px;
+    }
+
+    /* ── PROJECT GRID ── */
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
+
+    .project-grid.two-col {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Featured = spans 2 cols */
+    .project-card.wide {
+      grid-column: span 2;
+    }
+
+    .project-card {
+      position: relative;
+      overflow: hidden;
+      background: var(--parchment);
+      cursor: pointer;
+    }
+
+    /* Aspect ratios */
+    .project-card .card-img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+    }
+    .project-card.wide .card-img { aspect-ratio: 16/9; }
+    .project-card.tall .card-img { aspect-ratio: 3/4; }
+
+    .card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94),
+                  filter 0.4s;
+      filter: saturate(0.88) brightness(0.97);
+    }
+
+    .project-card:hover .card-img img {
+      transform: scale(1.04);
+      filter: saturate(1) brightness(1);
+    }
+
+    /* Hover overlay with title */
+    .card-hover {
+      position: absolute;
+      inset: 0;
+      background: rgba(28,31,27,0.72);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 28px 24px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .project-card:hover .card-hover { opacity: 1; }
+
+    .card-hover-cat {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--sage);
+      margin-bottom: 6px;
+    }
+
+    .card-hover-title {
+      font-family: 'Source Serif 4', serif;
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--cream);
+      line-height: 1.35;
+    }
+
+    .card-hover-arrow {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: var(--cream);
+      font-size: 1.1rem;
+      opacity: 0.7;
+    }
+
+    /* ── ABOUT SECTION ── */
+    #about {
+      padding: 72px 52px;
+      border-top: 1px solid var(--rule);
+      display: grid;
+      grid-template-columns: 1fr 1.8fr;
+      gap: 72px;
+      align-items: start;
+    }
+
+    .about-photo {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      object-position: top;
+      filter: sepia(0.1) saturate(0.9);
+    }
+
+    .about-photo-placeholder {
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: var(--parchment);
+      border: 1px solid var(--rule);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .about-photo-placeholder span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--slate);
+      opacity: 0.4;
+    }
+
+    .about-text h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      font-style: italic;
+      margin-bottom: 20px;
+      color: var(--charcoal);
+    }
+
+    .about-text p {
+      font-weight: 300;
+      color: var(--slate);
+      margin-bottom: 28px;
+      font-size: 0.97rem;
+      line-height: 1.85;
+    }
+
+    .skills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 28px;
+    }
+
+    .skill-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border: 1px solid var(--rule);
+      color: var(--slate);
+    }
+
+    .about-links {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .about-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.66rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+      text-decoration: none;
+      border-bottom: 1px solid var(--tan);
+      padding-bottom: 2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .about-links a:hover { color: var(--forest); border-color: var(--forest); }
+
+    /* ── CONTACT ── */
+    #contact {
+      padding: 72px 52px 80px;
+      border-top: 1px solid var(--rule);
+    }
+
+    #contact h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--charcoal);
+      margin-bottom: 32px;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+
+    .contact-item {
+      border-left: 1px solid var(--rule);
+      padding: 20px 24px;
+      text-decoration: none;
+      display: block;
+      transition: background 0.2s;
+    }
+    .contact-item:hover { background: var(--parchment); }
+
+    .contact-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--moss);
+      margin-bottom: 6px;
+    }
+
+    .contact-value {
+      font-size: 0.88rem;
+      color: var(--charcoal);
+      font-weight: 300;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--rule);
+      padding: 24px 52px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    footer span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--slate);
+      opacity: 0.5;
+    }
+
+    /* ── MODAL / PROJECT DETAIL ── */
+    .detail-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      display: none;
+      overflow-y: auto;
+      background: var(--cream);
+    }
+    .detail-overlay.open { display: block; }
+
+    .detail-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 80px 52px 100px;
+    }
+
+    .detail-close {
+      position: fixed;
+      top: 20px;
+      right: 28px;
+      background: none;
+      border: none;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.66rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+      z-index: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .detail-close:hover { opacity: 1; }
+
+    .detail-back-arrow { font-size: 0.9rem; }
+
+    .detail-cat {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--moss);
+      margin-bottom: 12px;
+    }
+
+    .detail-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 700;
+      line-height: 1.15;
+      max-width: 700px;
+      margin-bottom: 12px;
+      color: var(--ink);
+    }
+
+    .detail-tools {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      color: var(--slate);
+      margin-bottom: 48px;
+      opacity: 0.7;
+    }
+
+    .detail-hero-img {
+      width: 100%;
+      max-height: 600px;
+      object-fit: cover;
+      display: block;
+      margin-bottom: 48px;
+    }
+
+    .detail-body {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    .detail-desc {
+      font-size: 1rem;
+      font-weight: 300;
+      line-height: 1.9;
+      color: var(--charcoal);
+    }
+
+    .detail-meta {
+      border-left: 2px solid var(--rule);
+      padding-left: 28px;
+    }
+
+    .detail-meta-item {
+      margin-bottom: 24px;
+    }
+
+    .detail-meta-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--moss);
+      margin-bottom: 4px;
+    }
+
+    .detail-meta-value {
+      font-size: 0.88rem;
+      font-weight: 300;
+      color: var(--charcoal);
+    }
+
+    .detail-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.66rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--forest);
+      text-decoration: none;
+      border-bottom: 1px solid currentColor;
+      padding-bottom: 2px;
+      margin-top: 8px;
+    }
+
+    /* Fade in */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* Stagger children */
+    .stagger > * { opacity: 0; transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s ease; }
+    .stagger.visible > *:nth-child(1) { opacity:1; transform:none; transition-delay: 0s; }
+    .stagger.visible > *:nth-child(2) { opacity:1; transform:none; transition-delay: 0.07s; }
+    .stagger.visible > *:nth-child(3) { opacity:1; transform:none; transition-delay: 0.14s; }
+    .stagger.visible > *:nth-child(4) { opacity:1; transform:none; transition-delay: 0.21s; }
+    .stagger.visible > *:nth-child(5) { opacity:1; transform:none; transition-delay: 0.28s; }
+    .stagger.visible > *:nth-child(6) { opacity:1; transform:none; transition-delay: 0.35s; }
+    .stagger.visible > *:nth-child(7) { opacity:1; transform:none; transition-delay: 0.42s; }
+    .stagger.visible > *:nth-child(8) { opacity:1; transform:none; transition-delay: 0.49s; }
+    .stagger.visible > *:nth-child(n+9) { opacity:1; transform:none; transition-delay: 0.56s; }
+
+    @media (max-width: 900px) {
+      nav { padding: 0 24px; }
+      #hero { padding: 120px 24px 60px; }
+      .section-block { padding: 56px 24px; }
+      #about { padding: 56px 24px; grid-template-columns: 1fr; gap: 36px; }
+      #contact { padding: 56px 24px 60px; }
+      footer { padding: 20px 24px; }
+      .project-grid { grid-template-columns: 1fr 1fr; }
+      .project-card.wide { grid-column: span 2; }
+      .contact-grid { grid-template-columns: 1fr 1fr; }
+      .detail-inner { padding: 72px 24px 80px; }
+      .detail-body { grid-template-columns: 1fr; }
+      .detail-meta { border-left: none; padding-left: 0; border-top: 1px solid var(--rule); padding-top: 24px; }
+    }
+
+    @media (max-width: 560px) {
+      .project-grid { grid-template-columns: 1fr; }
+      .project-card.wide { grid-column: span 1; }
+      .project-grid.two-col { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr 1fr; }
+      .nav-links { gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-name" href="#hero">Isaiah Bennett</a>
+  <ul class="nav-links">
+    <li><a href="#highlights">Highlights</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#webmapping">Web Mapping</a></li>
+    <li><a href="#cartography">Cartography</a></li>
+    <li><a href="#research">Research</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <p class="hero-eyebrow">GIS · Cartography · Conservation</p>
+  <h1>Isaiah<br><em>Bennett</em></h1>
+  <p class="hero-bio">
+    Dangermond Fellow at the National Audubon Society's Enterprise GIS team and recent Environmental Geography graduate from Middlebury College. I use GIS and cartography to investigate socio-ecological interactions, expose environmental injustices, and support conservation through analysis and storytelling.
+  </p>
+  <div class="hero-links">
+    <a href="#highlights">View Work ↓</a>
+    <a href="resume.pdf" download>Resume ↓</a>
+    <a href="https://github.com/isaiahbennett2/" target="_blank">GitHub ↗</a>
+    <a href="https://www.linkedin.com/in/isaiah-bennett-b6699b264" target="_blank">LinkedIn ↗</a>
+  </div>
+</section>
+
+<!-- HIGHLIGHTS -->
+<section id="highlights" class="section-block">
+  <h2 class="section-title fade-in">Highlights</h2>
+  <div class="project-grid stagger">
+
+    <div class="project-card wide"
+         data-cat="Personal"
+         data-title="An Exploratory Map of Portland & Coastal Southern Maine"
+         data-tools="QGIS · Adobe Illustrator"
+         data-context="Personal Project"
+         data-year="2025"
+         data-desc="A beautifully detailed reference map of Portland, Maine and the surrounding Casco Bay coastline — showcasing parks, nature reserves, island topography, hypsometric tinting, and bathymetric contours of the Gulf of Maine. Crafted entirely in QGIS and Adobe Illustrator with a focus on printable cartographic quality."
+         data-img="1779853962342_PortlandMap.png">
+      <div class="card-img">
+        <img src="1779853962342_PortlandMap.png" alt="Portland Map" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Personal</span>
+        <span class="card-hover-title">An Exploratory Map of Portland & Coastal Southern Maine</span>
+      </div>
+    </div>
+
+    <div class="project-card"
+         data-cat="Professional · Audubon"
+         data-title="Audubon Flood Risk Dashboard"
+         data-tools="ArcGIS Dashboard · Survey123 · Python · Arcade · VTSE"
+         data-context="National Audubon Society"
+         data-year="2025"
+         data-desc="A nationwide operational dashboard displaying FEMA floodplain coverage and flood frequency risk for all 129+ Audubon properties across the US. Integrates Survey123 field data collection, Python processing pipelines, and Arcade-driven dynamic reporting to give property managers immediate access to flood vulnerability data."
+         data-img="1779853962342_FloodRisk.png">
+      <div class="card-img">
+        <img src="1779853962342_FloodRisk.png" alt="Flood Risk Dashboard" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Professional · Audubon</span>
+        <span class="card-hover-title">Audubon Flood Risk Dashboard</span>
+      </div>
+    </div>
+
+    <div class="project-card"
+         data-cat="Personal"
+         data-title="Biking to Orange Bike Brewing Co."
+         data-tools="Adobe Illustrator · QGIS · ArcGIS Pro"
+         data-context="Personal Project"
+         data-year="2024"
+         data-desc="A hand-crafted illustrated map of Portland, Maine showing isochrone bike-ride time radii to Orange Bike Brewing Company and all 100+ distributor and retailer locations across the greater Portland area. A passion project blending precise cartographic technique with local knowledge and a playful editorial aesthetic."
+         data-img="1779853962342_OrangeBikeMap.png">
+      <div class="card-img">
+        <img src="1779853962342_OrangeBikeMap.png" alt="Orange Bike Map" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Personal</span>
+        <span class="card-hover-title">Biking to Orange Bike Brewing Co.</span>
+      </div>
+    </div>
+
+    <div class="project-card"
+         data-cat="Professional · Audubon"
+         data-title="NC Forest Decision Support Tool"
+         data-tools="ArcGIS Pro · Dashboard · Python · Arcade"
+         data-context="Audubon North Carolina"
+         data-year="2025"
+         data-desc="An interactive ArcGIS Dashboard enabling Audubon North Carolina's forestry managers to assess canopy cover, forest stand size, land cover composition, and canopy loss trends by HUC-12 watershed. Built with Python data pipelines, Arcade expressions, and ArcGIS Pro."
+         data-img="1779853962342_NCForest.png">
+      <div class="card-img">
+        <img src="1779853962342_NCForest.png" alt="NC Forest Decision Support" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Professional · Audubon</span>
+        <span class="card-hover-title">NC Forest Decision Support Tool</span>
+      </div>
+    </div>
+
+    <div class="project-card"
+         data-cat="Academic · Middlebury"
+         data-title="Mapping COVID-19 Amenity Migration & Rural Gentrification in the Berkshires"
+         data-tools="R Studio · QGIS · Adobe Illustrator"
+         data-context="Middlebury College · Department of Geography"
+         data-year="2025"
+         data-desc="A spatial analysis investigating how the COVID-19 pandemic catalyzed rural gentrification in Berkshire County, MA. Using mobile device location data from Veraset representing 10% of the national population, the study classified 14 distinct movement typologies and quantified the link between affluent in-migration and local displacement through rising rents."
+         data-img="1779853962342_MigrationResearch.png">
+      <div class="card-img">
+        <img src="1779853962342_MigrationResearch.png" alt="Migration Research" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Academic · Middlebury</span>
+        <span class="card-hover-title">COVID-19 Migration & Rural Gentrification in the Berkshires</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-photo-placeholder">
+    <span>Add headshot here</span>
+  </div>
+  <div class="about-text fade-in">
+    <h2>About me</h2>
+    <p>As a recent Middlebury College Environmental Geography graduate and Dangermond Fellow working with the National Audubon Society's Enterprise GIS team, I am passionate about investigating socio-ecological interactions using GIS and cartography to expose environmental injustices and support conservation initiatives through analysis and storytelling.</p>
+    <p>I find joy and purpose through immersing myself in the natural landscapes around me while fighting to protect them for the future.</p>
+    <div class="skills-row">
+      <span class="skill-tag">ArcGIS Pro</span>
+      <span class="skill-tag">QGIS</span>
+      <span class="skill-tag">ArcGIS Online</span>
+      <span class="skill-tag">Dashboards</span>
+      <span class="skill-tag">StoryMaps</span>
+      <span class="skill-tag">Experience Builder</span>
+      <span class="skill-tag">Survey123</span>
+      <span class="skill-tag">Adobe Illustrator</span>
+      <span class="skill-tag">R Studio</span>
+      <span class="skill-tag">Python</span>
+      <span class="skill-tag">Arcade</span>
+      <span class="skill-tag">LiDAR / Remote Sensing</span>
+    </div>
+    <div class="about-links">
+      <a href="resume.pdf" download>Download Resume ↓</a>
+      <a href="https://github.com/isaiahbennett2/" target="_blank">GitHub ↗</a>
+      <a href="https://www.linkedin.com/in/isaiah-bennett-b6699b264" target="_blank">LinkedIn ↗</a>
+    </div>
+  </div>
+</section>
+
+<!-- WEB MAPPING -->
+<section id="webmapping" class="section-block">
+  <h2 class="section-title fade-in">Web Mapping & Interactive Apps</h2>
+  <div class="project-grid stagger">
+
+    <div class="project-card wide"
+         data-cat="Professional · Audubon"
+         data-title="Americas Flyways Initiative Corporate Partnership Identification Tool"
+         data-tools="ArcGIS Experience Builder · VTSE · ArcGIS Pro"
+         data-context="National Audubon Society"
+         data-year="2025"
+         data-desc="An interactive ArcGIS Experience Builder application enabling Audubon's partnerships team to identify corporate water users operating in proximity to shorebird and landbird flyway sites across the Americas. Supports strategic conservation fundraising and corporate engagement by surfacing basin-level corporate water impact data alongside Audubon site networks."
+         data-img="1779853962340_AFICorporatePresence.png">
+      <div class="card-img">
+        <img src="1779853962340_AFICorporatePresence.png" alt="AFI Corporate Tool" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Professional · Audubon</span>
+        <span class="card-hover-title">Americas Flyways Initiative Corporate Partnership Tool</span>
+      </div>
+    </div>
+
+    <div class="project-card"
+         data-cat="Professional · Audubon"
+         data-title="2025 Audubon Photography Awards: Winners Map"
+         data-tools="Instant App · VTSE · ArcGIS Pro"
+         data-context="National Audubon Society"
+         data-year="2025"
+         data-desc="A publicly embedded interactive map on the Audubon website showing the geographic origins of all winning and runner-up photos from the 2025 Audubon Photography Awards — spanning the United States, Canada, Chile, and Colombia. Built as an Instant App with custom basemap styling."
+         data-img="1779853962341_APAPhotoAwards.png">
+      <div class="card-img">
+        <img src="1779853962341_APAPhotoAwards.png" alt="APA Photo Awards" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Professional · Audubon</span>
+        <span class="card-hover-title">2025 Audubon Photography Awards: Winners Map</span>
+      </div>
+    </div>
+
+    <div class="project-card"
+         data-cat="Professional · Audubon"
+         data-title="Seabird Restoration Database"
+         data-tools="ArcGIS Experience Builder · Dashboards · Survey123 · VTSE"
+         data-context="National Audubon Society"
+         data-year="2025"
+         data-desc="A global interactive database and mapping application cataloguing active seabird restoration efforts worldwide. Practitioners can explore social attraction and translocation events by species, region, and restoration method. Built with ArcGIS Experience Builder, Survey123 for data contribution, and a custom filterable dashboard interface."
+         data-img="1779853962343_SeabirdRestorationDatabase.png">
+      <div class="card-img">
+        <img src="1779853962343_SeabirdRestorationDatabase.png" alt="Seabird Restoration Database" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Professional · Audubon</span>
+        <span class="card-hover-title">Seabird Restoration Database</span>
+      </div>
+    </div>
+
+    <div class="project-card"
+         data-cat="Professional · Audubon"
+         data-title="North Carolina Trust Funded Projects"
+         data-tools="ArcGIS Online · VTSE"
+         data-context="Audubon North Carolina"
+         data-year="2025"
+         data-desc="An interactive reference map of all North Carolina Trust Fund-supported conservation projects — including Farmland Preservation, Parks & Recreation, and Land and Water grants — displayed by county with grant details, amounts, and applicant information accessible on click."
+         data-img="1779853962343_NCTrustFunds.png">
+      <div class="card-img">
+        <img src="1779853962343_NCTrustFunds.png" alt="NC Trust Funds" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Professional · Audubon</span>
+        <span class="card-hover-title">North Carolina Trust Funded Projects</span>
+      </div>
+    </div>
+
+    <div class="project-card wide"
+         data-cat="Academic · Middlebury"
+         data-title="Rewilding Vermont: Protecting Vermont's Public Forests"
+         data-tools="ArcGIS StoryMaps · ArcGIS Pro · Interviews · Photojournalism"
+         data-context="Middlebury College · ENVS 401"
+         data-year="2025"
+         data-desc="An ArcGIS StoryMap advocating for the protection of Vermont's public forests, combining interview-based journalism, photographic documentation, and spatial analysis of forest coverage and public land ownership. Built collaboratively with a team of five, the project makes the case for collective ecological stewardship of Vermont's remaining wild lands."
+         data-img="1779853962342_RewildingVT.png">
+      <div class="card-img">
+        <img src="1779853962342_RewildingVT.png" alt="Rewilding Vermont" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Academic · Middlebury</span>
+        <span class="card-hover-title">Rewilding Vermont: Protecting Vermont's Public Forests</span>
+      </div>
+    </div>
+
+    <div class="project-card"
+         data-cat="Academic · Middlebury"
+         data-title="Building Community: Infill Development in Bristol, VT"
+         data-tools="ArcGIS StoryMaps · ArcGIS Pro · Community Survey · Interviews"
+         data-context="Middlebury College"
+         data-year="2025"
+         data-desc="A collaborative StoryMap examining best practices for affordable infill housing development in Bristol, Vermont. Incorporates community survey results, stakeholder interviews, zoning analysis, and spatial modeling of development capacity to inform local planning decisions."
+         data-img="1779853962341_BuildingCommunity.png">
+      <div class="card-img">
+        <img src="1779853962341_BuildingCommunity.png" alt="Building Community" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Academic · Middlebury</span>
+        <span class="card-hover-title">Building Community: Infill Development in Bristol, VT</span>
+      </div>
+    </div>
+
+    <div class="project-card"
+         data-cat="Professional · Audubon"
+         data-title="My Visit to Audubon's Hog Island"
+         data-tools="ArcGIS StoryMaps · ArcGIS Pro"
+         data-context="National Audubon Society"
+         data-year="2025"
+         data-desc="A personal StoryMap documenting a visit to Audubon's Hog Island Seabird Restoration Camp off the coast of Maine, combining photography, narrative, and mapping to tell the story of seabird conservation efforts in the Gulf of Maine."
+         data-img="1779853962342_HogIslandVisit.png">
+      <div class="card-img">
+        <img src="1779853962342_HogIslandVisit.png" alt="Hog Island Visit" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Professional · Audubon</span>
+        <span class="card-hover-title">My Visit to Audubon's Hog Island</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CARTOGRAPHY -->
+<section id="cartography" class="section-block">
+  <h2 class="section-title fade-in">Cartography</h2>
+  <div class="project-grid stagger">
+
+    <div class="project-card tall"
+         data-cat="Academic · Middlebury"
+         data-title="Identifying Greenspace Ownership for Conservation in Montpelier, VT"
+         data-tools="QGIS · Adobe Illustrator"
+         data-context="Middlebury College"
+         data-year="2025"
+         data-desc="A cartographic analysis of urban greenspace ownership in Vermont's capital city, contextualized by the devastating 2023 flooding disaster. Maps all parcels over 50 acres with under 1% impervious cover, labeling owners to identify conservation priorities and spark community dialogue about the balance between development and ecological resilience."
+         data-img="1779853962342_MontpelierGreenspace.png">
+      <div class="card-img">
+        <img src="1779853962342_MontpelierGreenspace.png" alt="Montpelier Greenspace" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Academic · Middlebury</span>
+        <span class="card-hover-title">Greenspace Ownership for Conservation — Montpelier, VT</span>
+      </div>
+    </div>
+
+    <div class="project-card tall"
+         data-cat="Personal"
+         data-title="An Exploratory Map of Portland & Coastal Southern Maine"
+         data-tools="QGIS · Adobe Illustrator"
+         data-context="Personal Project"
+         data-year="2025"
+         data-desc="A beautifully detailed reference map of Portland, Maine and the surrounding Casco Bay coastline — showcasing parks, nature reserves, island topography, hypsometric tinting, and bathymetric contours of the Gulf of Maine. Crafted entirely in QGIS and Adobe Illustrator with a focus on printable cartographic quality."
+         data-img="1779853962342_PortlandMap.png">
+      <div class="card-img">
+        <img src="1779853962342_PortlandMap.png" alt="Portland Map" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Personal</span>
+        <span class="card-hover-title">Exploratory Map of Portland & Coastal Southern Maine</span>
+      </div>
+    </div>
+
+    <div class="project-card tall"
+         data-cat="Academic · Middlebury"
+         data-title="Espacios Verdes de Valdivia"
+         data-tools="QGIS · Adobe Illustrator"
+         data-context="Middlebury College"
+         data-year="2025"
+         data-desc="A detailed urban greenspace map of Valdivia, Chile, documenting parks, wetlands, athletic fields, transit micro-bus lines, and green corridors in a bilingual Spanish-English format — created with a focus on international planning and legible public-facing cartographic design."
+         data-img="1779853962343_Valdivia.png">
+      <div class="card-img">
+        <img src="1779853962343_Valdivia.png" alt="Valdivia" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Academic · Middlebury</span>
+        <span class="card-hover-title">Espacios Verdes de Valdivia, Chile</span>
+      </div>
+    </div>
+
+    <div class="project-card"
+         data-cat="Personal"
+         data-title="Biking to Orange Bike Brewing Co."
+         data-tools="Adobe Illustrator · QGIS · ArcGIS Pro"
+         data-context="Personal Project"
+         data-year="2024"
+         data-desc="A hand-crafted illustrated map of Portland, Maine showing isochrone bike-ride time radii to Orange Bike Brewing Company and all 100+ distributor and retailer locations across greater Portland. A passion project blending precise cartographic technique with local knowledge and a playful editorial layout."
+         data-img="1779853962342_OrangeBikeMap.png">
+      <div class="card-img">
+        <img src="1779853962342_OrangeBikeMap.png" alt="Orange Bike Map" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Personal</span>
+        <span class="card-hover-title">Biking to Orange Bike Brewing Co.</span>
+      </div>
+    </div>
+
+    <div class="project-card"
+         data-cat="Academic · Middlebury"
+         data-title="Middlebury Snow Bowl Trail Map"
+         data-tools="Adobe Illustrator"
+         data-context="Middlebury College"
+         data-year="2024"
+         data-desc="An illustrated trail map of the Middlebury Snow Bowl ski area rendered entirely in Adobe Illustrator — documenting all 48 named trails and spots, four lifts, terrain zones, and key features across the mountain. Designed in the tradition of classic hand-drawn ski resort cartography."
+         data-img="1779853962343_SnowbowlMap.png">
+      <div class="card-img">
+        <img src="1779853962343_SnowbowlMap.png" alt="Snow Bowl Map" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Academic · Middlebury</span>
+        <span class="card-hover-title">Middlebury Snow Bowl Trail Map</span>
+      </div>
+    </div>
+
+    <div class="project-card"
+         data-cat="Academic · Middlebury"
+         data-title="Developing Communities Near Social Infrastructure — Addison County, VT"
+         data-tools="QGIS · Adobe Illustrator"
+         data-context="Middlebury College"
+         data-year="2025"
+         data-desc="A planning-focused map identifying residential zones in three Addison County towns where affordable housing development near schools and libraries could reinvigorate underutilized downtowns and strengthen civic fabric — supporting Vermont Act 181's affordable housing goals."
+         data-img="1779853962343_SocialInfrastructureDevelopment.png">
+      <div class="card-img">
+        <img src="1779853962343_SocialInfrastructureDevelopment.png" alt="Social Infrastructure" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Academic · Middlebury</span>
+        <span class="card-hover-title">Communities Near Social Infrastructure — Addison County</span>
+      </div>
+    </div>
+
+    <div class="project-card"
+         data-cat="Academic · Middlebury"
+         data-title="Symbol Style Sheet"
+         data-tools="QGIS · Adobe Illustrator"
+         data-context="Middlebury College · GEOG 271"
+         data-year="2025"
+         data-desc="A reference sheet documenting cartographic symbol techniques in Adobe Illustrator — including cased lines, overlay patterns, waterline contours, gradient fills, boundary inner bands, brush patterns, and bundled flow lines. Derived from maps in Jeff Howarth's GEOG 271 collection."
+         data-img="1779853962343_Symbols.png">
+      <div class="card-img">
+        <img src="1779853962343_Symbols.png" alt="Symbol Sheet" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Academic · Middlebury</span>
+        <span class="card-hover-title">Symbol Style Sheet</span>
+      </div>
+    </div>
+
+    <div class="project-card"
+         data-cat="Academic · Middlebury"
+         data-title="Type Taxonomy: High Arctic Caving"
+         data-tools="QGIS · Adobe Illustrator"
+         data-context="Middlebury College · GEOG 271"
+         data-year="2025"
+         data-desc="A cartographic type taxonomy sheet documenting a complete typographic hierarchy for a High Arctic Caving expedition map — covering place name labels, maritime and water labels, country labels, expedition site labels, geographic labels, and descriptive text with full font specifications."
+         data-img="1779853962343_Type.png">
+      <div class="card-img">
+        <img src="1779853962343_Type.png" alt="Type Sheet" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Academic · Middlebury</span>
+        <span class="card-hover-title">Type Taxonomy: High Arctic Caving</span>
+      </div>
+    </div>
+
+    <div class="project-card"
+         data-cat="Academic · Middlebury"
+         data-title="Color Design: Classic Color Symbols"
+         data-tools="QGIS · Adobe Illustrator"
+         data-context="Middlebury College · GEOG 271"
+         data-year="2025"
+         data-desc="A cartographic color analysis and symbol sheet demonstrating classic military map color conventions — using the 1895 Battle of Bull Run as a case study. Analyzes how saturation, hue, and visual hierarchy interact to communicate troop positions, terrain, and movement on a historical battlefield map."
+         data-img="1779853962342_Colors.png">
+      <div class="card-img">
+        <img src="1779853962342_Colors.png" alt="Color Sheet" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Academic · Middlebury</span>
+        <span class="card-hover-title">Color Design: Classic Color Symbols</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- RESEARCH -->
+<section id="research" class="section-block">
+  <h2 class="section-title fade-in">Research</h2>
+  <div class="project-grid two-col stagger">
+
+    <div class="project-card"
+         data-cat="Academic · Middlebury"
+         data-title="Landslide Sensitivity Mapping in Vermont"
+         data-tools="ArcGIS Pro · Remote Sensing · LiDAR"
+         data-context="Middlebury College · ECSC 0322 Remote Sensing in Geoscience"
+         data-year="December 2024"
+         data-desc="A remote sensing research project developing a refined landslide sensitivity model for Vermont's Route 125 corridor using 1m LiDAR DEMs, frequency ratio analysis, and five natural terrain parameters (slope angle, distance to stream, terrain roughness, drainage hydrologic group, and soil type). Validated against GPS-confirmed 2023 flood-induced landslides. The refined model showed significantly higher predictive accuracy than the existing state protocol."
+         data-img="1779853962342_LandslideResearch.png">
+      <div class="card-img">
+        <img src="1779853962342_LandslideResearch.png" alt="Landslide Research" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Academic · Middlebury</span>
+        <span class="card-hover-title">Landslide Sensitivity Mapping in Vermont</span>
+      </div>
+    </div>
+
+    <div class="project-card"
+         data-cat="Academic · Middlebury"
+         data-title="COVID-19 Amenity Migration & Rural Gentrification in the Berkshires"
+         data-tools="R Studio · QGIS · Adobe Illustrator"
+         data-context="Middlebury College · Department of Geography · Spring Symposium"
+         data-year="April 2025"
+         data-desc="A spatial analysis using Veraset mobile device location data representing 10% of the national population to classify 14 distinct migration movement typologies in Berkshire County, MA during 2019–2021. The study quantifies COVID-era in-migration patterns, identifies the disproportionate influx of affluent movers to rural tracts, and establishes a statistically significant correlation (r = 0.87) between affluent in-migration and displacement of rent-burdened residents."
+         data-img="1779853962342_MigrationResearch.png">
+      <div class="card-img">
+        <img src="1779853962342_MigrationResearch.png" alt="Migration Research" loading="lazy" />
+      </div>
+      <div class="card-hover">
+        <span class="card-hover-arrow">↗</span>
+        <span class="card-hover-cat">Academic · Middlebury</span>
+        <span class="card-hover-title">COVID-19 Migration & Rural Gentrification in the Berkshires</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div style="padding: 72px 52px 80px; border-top: 1px solid var(--rule);">
+    <h2 style="font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:400; font-style:italic; color:var(--charcoal); margin-bottom:16px;" class="fade-in">Get in touch</h2>
+    <p style="font-weight:300; color:var(--slate); font-size:0.97rem; max-width:520px; margin-bottom:40px; line-height:1.85;" class="fade-in">
+      Whether you're looking for a GIS analyst, a cartographer, or a collaborator on conservation work — I'd love to hear from you.
+    </p>
+    <div class="contact-grid fade-in">
+      <a class="contact-item" href="mailto:isaiahabennett@gmail.com">
+        <div class="contact-label">Email</div>
+        <div class="contact-value">isaiahabennett@gmail.com</div>
+      </a>
+      <a class="contact-item" href="https://www.linkedin.com/in/isaiah-bennett-b6699b264" target="_blank">
+        <div class="contact-label">LinkedIn</div>
+        <div class="contact-value">isaiah-bennett-b6699b264</div>
+      </a>
+      <a class="contact-item" href="https://github.com/isaiahbennett2/" target="_blank">
+        <div class="contact-label">GitHub</div>
+        <div class="contact-value">isaiahbennett2</div>
+      </a>
+      <a class="contact-item" href="resume.pdf" download>
+        <div class="contact-label">Resume</div>
+        <div class="contact-value">Download PDF ↓</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>Isaiah Bennett — GIS & Cartography</span>
+  <span>Portland, ME · 2025</span>
+</footer>
+
+<!-- PROJECT DETAIL OVERLAY -->
+<div class="detail-overlay" id="detail">
+  <button class="detail-close" id="detail-close">
+    <span class="detail-back-arrow">←</span> Back
+  </button>
+  <div class="detail-inner">
+    <div class="detail-cat" id="d-cat"></div>
+    <h1 class="detail-title" id="d-title"></h1>
+    <div class="detail-tools" id="d-tools"></div>
+    <img class="detail-hero-img" id="d-img" src="" alt="" />
+    <div class="detail-body">
+      <p class="detail-desc" id="d-desc"></p>
+      <div class="detail-meta">
+        <div class="detail-meta-item">
+          <div class="detail-meta-label">Context</div>
+          <div class="detail-meta-value" id="d-context"></div>
+        </div>
+        <div class="detail-meta-item">
+          <div class="detail-meta-label">Year</div>
+          <div class="detail-meta-value" id="d-year"></div>
+        </div>
+        <div class="detail-meta-item">
+          <div class="detail-meta-label">Tools</div>
+          <div class="detail-meta-value" id="d-tools-meta"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Scroll reveal
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.06 });
+
+  document.querySelectorAll('.fade-in, .stagger').forEach(el => io.observe(el));
+
+  // Project detail
+  const detail = document.getElementById('detail');
+
+  document.querySelectorAll('.project-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.getElementById('d-cat').textContent     = card.dataset.cat || '';
+      document.getElementById('d-title').textContent   = card.dataset.title || '';
+      document.getElementById('d-tools').textContent   = card.dataset.tools || '';
+      document.getElementById('d-desc').textContent    = card.dataset.desc || '';
+      document.getElementById('d-context').textContent = card.dataset.context || '';
+      document.getElementById('d-year').textContent    = card.dataset.year || '';
+      document.getElementById('d-tools-meta').textContent = card.dataset.tools || '';
+      const img = document.getElementById('d-img');
+      img.src = card.dataset.img || '';
+      img.alt = card.dataset.title || '';
+      detail.classList.add('open');
+      detail.scrollTop = 0;
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  function closeDetail() {
+    detail.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('detail-close').addEventListener('click', closeDetail);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+</script>
+
+</body>
+</html>
