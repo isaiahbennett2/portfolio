@@ -246,37 +246,59 @@
       align-items: start;
     }
     
-    /* IMAGE GRID */
+    /* ── IMAGE GALLERY ── */
     .about-gallery {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      display: flex;
+      flex-direction: column;
       gap: 8px;
     }
     
-    /* First image wider */
-    .about-gallery .gallery-img:first-child {
-      grid-column: span 2;
+    /* Rows */
+    .gallery-row {
+      display: grid;
+      gap: 8px;
     }
     
+    /* Top row = 2 wide images */
+    .top-row {
+      grid-template-columns: 1fr 1fr;
+    }
+    
+    /* Bottom row = 3 equal images */
+    .bottom-row {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    
+    /* Image containers */
     .gallery-img {
       overflow: hidden;
       background: var(--parchment);
     }
     
-    /* IMPORTANT: controls image sizing */
+    /* Image behavior */
     .gallery-img img {
       width: 100%;
-      height: 220px;
+      height: 100%;
       object-fit: cover;
       display: block;
       transition: transform 0.4s ease;
     }
     
+    /* Fixed row heights */
+    .top-row .gallery-img {
+      height: 340px;
+    }
+    
+    .bottom-row .gallery-img {
+      height: 280px;
+    }
+    
+    /* Hover */
     .gallery-img:hover img {
       transform: scale(1.03);
     }
     
-    /* TEXT */
+    /* ── TEXT ── */
     .about-text h2 {
       font-family: 'Playfair Display', serif;
       font-size: 1.5rem;
@@ -334,32 +356,33 @@
       border-color: var(--forest);
     }
     
-    /* MOBILE */
+    /* ── MOBILE ── */
     @media (max-width: 900px) {
+    
       .about-grid {
         grid-template-columns: 1fr;
       }
     
-      .about-gallery {
-        grid-template-columns: repeat(2, 1fr);
+      .top-row,
+      .bottom-row {
+        grid-template-columns: 1fr;
       }
     
-      .about-gallery .gallery-img:first-child {
-        grid-column: span 2;
-      }
-    
-      .gallery-img img {
-        height: 180px;
+      .top-row .gallery-img,
+      .bottom-row .gallery-img {
+        height: 240px;
       }
     }
     
     @media (max-width: 560px) {
-      .about-gallery {
-        grid-template-columns: 1fr;
+    
+      #about {
+        padding: 56px 24px;
       }
     
-      .about-gallery .gallery-img:first-child {
-        grid-column: span 1;
+      .top-row .gallery-img,
+      .bottom-row .gallery-img {
+        height: 220px;
       }
     }
 
@@ -620,9 +643,9 @@
 <!-- HERO -->
 <section id="hero">
   <p class="hero-eyebrow">GIS · Cartography · Conservation</p>
-  <h1>Isaiah<br><em>Bennett</em></h1>
+  <h1>Isaiah<br>Bennett</h1>
   <p class="hero-bio">
-    Dangermond Fellow at the National Audubon Society's Enterprise GIS team and recent Environmental Geography graduate from Middlebury College. I use GIS and cartography to investigate socio-ecological interactions, expose environmental injustices, and support conservation through analysis and storytelling.
+    As a recent Middlebury College Environmental Geography graduate and Dangermond Fellow working with the National Audubon Society's Enterprise GIS team, I am passionate about investigating socio-ecological interactions using GIS and cartography to expose environmental injustices and support conservation initiatives through analysis and storytelling.
   </p>
   <div class="hero-links">
     <a href="#highlights">View Work ↓</a>
@@ -757,23 +780,33 @@
  
     <!-- LEFT: photo gallery -->
     <div class="about-gallery stagger">
-      <!-- Row 1: ski (landscape, 2 cols) + research (landscape, 1 col) -->
-      <div class="gallery-img">
-        <img src="About/ski.JPG" alt="Skiing" />
+
+      <!-- TOP ROW -->
+      <div class="gallery-row top-row">
+        <div class="gallery-img">
+          <img src="About/research.JPG" alt="Research" />
+        </div>
+    
+        <div class="gallery-img">
+          <img src="About/ski.JPG" alt="Skiing" />
+        </div>
       </div>
-      <div class="gallery-img">
-        <img src="About/research.JPG" alt="Research" />
+    
+      <!-- BOTTOM ROW -->
+      <div class="gallery-row bottom-row">
+        <div class="gallery-img">
+          <img src="About/portrait.JPG" alt="Portrait" />
+        </div>
+    
+        <div class="gallery-img">
+          <img src="About/map.JPG" alt="Mapping" />
+        </div>
+    
+        <div class="gallery-img">
+          <img src="About/hike.JPG" alt="Hiking" />
+        </div>
       </div>
-      <!-- Row 2: portrait, map, hike (all portrait) -->
-      <div class="gallery-img">
-        <img src="About/portrait.JPG" alt="Portrait" />
-      </div>
-      <div class="gallery-img">
-        <img src="About/map.JPG" alt="Mapping" />
-      </div>
-      <div class="gallery-img">
-        <img src="About/hike.JPG" alt="Hiking" />
-      </div>
+    
     </div>
  
     <!-- RIGHT: bio text -->
