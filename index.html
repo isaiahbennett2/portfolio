@@ -874,7 +874,8 @@
          data-context="National Audubon Society"
          data-year="2025"
          data-desc="A personal StoryMap documenting a visit to Audubon's Hog Island Seabird Restoration Camp off the coast of Maine, combining photography, narrative, and mapping to tell the story of seabird conservation efforts in the Gulf of Maine."
-         data-img="thumb/HogIslandVisit.png">
+         data-img="thumb/HogIslandVisit.png"
+         data-embed="https://storymaps.arcgis.com/stories/e62008f491b84466a63d22d143e27710">
       <div class="card-img">
         <img src="thumb/HogIslandVisit.png" alt="Hog Island Visit" loading="lazy" />
       </div>
@@ -1199,7 +1200,7 @@
     <div class="detail-cat" id="d-cat"></div>
     <h1 class="detail-title" id="d-title"></h1>
     <div class="detail-tools" id="d-tools"></div>
-    <img class="detail-hero-img" id="d-img" src="" alt="" />
+    <div id="d-media"></div>
     <div class="detail-body">
       <p class="detail-desc" id="d-desc"></p>
       <div class="detail-meta">
@@ -1245,9 +1246,26 @@
       document.getElementById('d-context').textContent = card.dataset.context || '';
       document.getElementById('d-year').textContent    = card.dataset.year || '';
       document.getElementById('d-tools-meta').textContent = card.dataset.tools || '';
-      const img = document.getElementById('d-img');
-      img.src = card.dataset.img || '';
-      img.alt = card.dataset.title || '';
+      const media = document.getElementById('d-media');
+      if (card.dataset.embed) {
+        media.innerHTML = `
+          <iframe
+            src="${card.dataset.embed}"
+            width="100%"
+            height="650px"
+            frameborder="0"
+            allowfullscreen
+            allow="geolocation">
+          </iframe>
+        `;
+      } else {
+        media.innerHTML = `
+          <img
+            class="detail-hero-img"
+            src="${card.dataset.img || ''}"
+            alt="${card.dataset.title || ''}">
+        `;
+      }
       detail.classList.add('open');
       detail.scrollTop = 0;
       document.body.style.overflow = 'hidden';
